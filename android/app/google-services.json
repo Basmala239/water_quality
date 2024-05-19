@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "697483963078",
+    "project_id": "water-quality-43dbd",
+    "storage_bucket": "water-quality-43dbd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697483963078:android:1cdc5164432d6a1edc85c7",
+        "android_client_info": {
+          "package_name": "com.example.water_quality"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBnn7WFxisLNPcL8NIPTwAX41jXpkr5Kk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
