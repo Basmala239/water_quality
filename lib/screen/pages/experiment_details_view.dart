@@ -1,7 +1,12 @@
 
+// ignore_for_file: avoid_print
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:water_quality/controller/provider/experiment_provide.dart';
 import 'package:water_quality/controller/provider/report_provider.dart';
+import 'package:water_quality/model/account_model.dart';
 import 'package:water_quality/model/experiment_model.dart';
 import 'package:water_quality/screen/size_config.dart';
 
@@ -9,16 +14,42 @@ import '../colors.dart';
 import '../widget/custom_app_bar.dart';
 import '../widget/new_experiment_info_item.dart';
 
+// ignore: must_be_immutable
 class ExperimentDetails extends StatelessWidget {
   ExperimentDetails({super.key, required this.appBarTitle, required this.duration, required this.temp, required this.textOfInstructions});
-  final String appBarTitle ;
-  final int duration ;
-  final int temp ;
-  final String textOfInstructions ;
+  final String appBarTitle;
+  final int duration;
+  final int temp;
+  final String textOfInstructions;
   final inf =TextEditingController() ;
   final eff =TextEditingController();
   final blank =TextEditingController();
+  DateTime now = DateTime.now();
 
+  CollectionReference experiment = FirebaseFirestore.instance.collection('recentExperiment'); 
+  Future<void> addExpirement(RecentExperiment ele) {
+                    return experiment
+                        .add({
+                          'name':ele.name,
+                          'by':ele.by,
+                          'time':ele.time,
+                          'date':ele.date,
+                        })
+                        .then((value) => print("recentExperiment Added"))
+                        .catchError((error) => print("Failed to add user: $error"));
+ }
+  CollectionReference reportExperiment = FirebaseFirestore.instance.collection('reportExperiment'); 
+  Future<void> addReportExperimentTodb(ExperimentReoprt ele) {
+                    return reportExperiment
+                        .add({
+                          'name':ele.name,
+                          'duration':ele.duration,
+                          'inf':ele.inf,
+                          'eff':ele.eff,
+                        })
+                        .then((value) => print("recentExperiment Added"))
+                        .catchError((error) => print("Failed to add user: $error"));
+ }
 
 
 
@@ -209,6 +240,9 @@ class ExperimentDetails extends StatelessWidget {
                     inf.text.trim();
                     int effValue=int.parse(eff.text);
                     int infValue=int.parse(inf.text);
+                    addExpirement(RecentExperiment(appBarTitle, AccountModel.currentUser, '${DateTime.now().hour}:${DateTime.now().minute}', '${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}'));
+                    addReportExperimentTodb(ExperimentReoprt(appBarTitle,duration,infValue,effValue));
+                    Provider.of<RecentExperimentProvider>(context,listen: false).addNewRecentExperiment(RecentExperiment(appBarTitle, AccountModel.currentUser, '${DateTime.now().hour}:${DateTime.now().minute}', '${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}'));
                     Provider.of<ReportProvider>(context,listen: false).addExperimentToReport(ExperimentReoprt(appBarTitle,duration,infValue,effValue));
                     inf.text ='';
                     eff.text ='';

@@ -1,3 +1,6 @@
+// ignore_for_file: avoid_print
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:water_quality/controller/provider/experiment_provide.dart';
@@ -9,6 +12,7 @@ import 'package:water_quality/screen/widget/custom_app_bar.dart';
 import '../widget/new_experiment_info_item.dart';
 
 
+// ignore: must_be_immutable
 class NewExperiments extends StatelessWidget {
   NewExperiments({super.key});
   final String user=AccountModel.currentUser;
@@ -17,6 +21,19 @@ class NewExperiments extends StatelessWidget {
   final temp=TextEditingController() ;
   final equipment=TextEditingController() ;
   final instructions=TextEditingController() ;
+  CollectionReference experiment = FirebaseFirestore.instance.collection('experimentType'); 
+    Future<void> addExpirement(ExperimentModel ele) {
+                    return experiment
+                        .add({
+                          'name':ele.name,
+                          'duration':ele.duration,
+                          'equipment':ele.equipment,
+                          'temp':ele.temp,
+                          'instructions':ele.instructions
+                        })
+                        .then((value) => print("User Added"))
+                        .catchError((error) => print("Failed to add user: $error"));
+                  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -245,6 +262,7 @@ class NewExperiments extends StatelessWidget {
                     temp.text.trim();
                     instructions.text.trim();
                     equipment.text.trim();
+                    addExpirement(ExperimentModel(name.text,int.parse(duration.text),equipment.text,int.parse(temp.text),instructions.text));
                     Provider.of<ExperimentProvider>(context,listen: false).addNewExperiment(ExperimentModel(name.text,int.parse(duration.text),equipment.text,int.parse(temp.text),instructions.text));
                     name.text ='';
                     duration.text ='';

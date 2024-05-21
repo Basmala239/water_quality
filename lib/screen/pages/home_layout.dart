@@ -155,10 +155,10 @@ class _ScreensExample extends StatelessWidget {
 
   final SidebarXController controller;
   final List<Widget>screens=[
-    HomeScreen(AccountModel.currentUser),
+    const HomeScreen(),
     const ExperimentsScreen(),
     const TaskScreen(),
-    ReportScreen(),
+    const ReportScreen(),
     SettingScreen()
   ];
   @override
@@ -176,9 +176,9 @@ class _ScreensExample extends StatelessWidget {
           case 1:
             return (AccountModel.accountMap[AccountModel.currentUser]!.jobTitle== 'Operating Techinician'||AccountModel.accountMap[AccountModel.currentUser]!.jobTitle== 'Engineer')? unautorized(): screens[1];
           case 2:
-            return (AccountModel.accountMap[AccountModel.currentUser]!.jobTitle== 'Engineer')? screens[2]: unautorized();
+            return screens[2];
           case 3:
-            return (AccountModel.accountMap[AccountModel.currentUser]!.jobTitle== 'IT Depertment')? unautorized(): screens[3];
+            return screens[3];
           case 4:
             return screens[4];
           default:

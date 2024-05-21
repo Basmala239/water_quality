@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 
 class ExperimentInfoItem extends StatelessWidget {
   const ExperimentInfoItem({super.key, required this.title, required this.child, required this.width, required this.height});
-final String title ;
-final Widget child;
-final double width;
-final double height;
-
- 
+  final String title ;
+  final Widget child;
+  final double width;
+  final double height;
   @override
   Widget build(BuildContext context) {
     return Column(

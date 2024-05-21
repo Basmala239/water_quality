@@ -1,16 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:water_quality/controller/assets_manager/assets_manager.dart';
 import 'package:water_quality/controller/provider/experiment_provide.dart';
+import 'package:water_quality/model/account_model.dart';
 import 'package:water_quality/model/experiment_model.dart';
 import 'package:water_quality/screen/pages/new_experiments_view.dart';
 import 'package:water_quality/screen/size_config.dart';
 import 'package:water_quality/screen/widget/experiment_item.dart';
 import 'package:flutter/material.dart';
-
-class ExperimentsScreen extends StatelessWidget {
+class ExperimentsScreen extends StatefulWidget {
   const ExperimentsScreen({super.key});
 
+  @override
+  State<ExperimentsScreen> createState() => _ExperimentsScreenState();
+}
+
+class _ExperimentsScreenState extends State<ExperimentsScreen> {
+  List <QueryDocumentSnapshot>data=[];
+  addToList(){
+    Provider.of<ExperimentProvider>(context,listen: false).empty();
+    for(int i=0;i<data.length;i++){
+        ExperimentModel ex=ExperimentModel(data[i]['name'],data[i]['duration'],data[i]['equipment'],data[i]['temp'],data[i]['instructions']);
+        Provider.of<ExperimentProvider>(context,listen: false).addNewExperiment(ex);
+    }
+  }
+  getExperimentType()async{
+    QuerySnapshot querySnapshot= await FirebaseFirestore.instance.collection('experimentType').get();
+    data.addAll(querySnapshot.docs);
+    addToList();
+  }
+  @override
+  void initState() {
+    getExperimentType();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -57,6 +81,7 @@ class ExperimentsScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
+                  if(AccountModel.accountMap[AccountModel.currentUser]!.jobTitle=='IT Depertment')
                   IconButton(
                     onPressed: () {
                       Navigator.of(context).push(MaterialPageRoute(

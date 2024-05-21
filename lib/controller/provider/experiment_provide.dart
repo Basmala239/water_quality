@@ -16,7 +16,26 @@ class ExperimentProvider extends ChangeNotifier{
     ExperimentModel.experimentList.add(ex);
     notifyListeners();
   }
+  void empty( ){
+    ExperimentModel.experimentList.clear();
+    notifyListeners();
+  }
   int legnthofExperimentList(){
     return ExperimentModel.experimentList.length;
+  }
+}
+
+
+class RecentExperimentProvider extends ChangeNotifier{
+  void addNewRecentExperiment(RecentExperiment ex ){
+    RecentExperiment.recentExperimentList.add(ex);
+    notifyListeners();
+  }
+  void empty(){
+    RecentExperiment.recentExperimentList.clear();
+    notifyListeners();
+  }
+  int legnthofrecentExperimentListt(){
+    return RecentExperiment.recentExperimentList.length;
   }
 }

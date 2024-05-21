@@ -30,9 +30,10 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context)=>AccountProvider()),
         ChangeNotifierProvider(create: (context)=>ExperimentProvider()),
         ChangeNotifierProvider(create: (context)=>SettingProvider()),
-        ChangeNotifierProvider(create: (context)=>ReportProvider())
+        ChangeNotifierProvider(create: (context)=>ReportProvider()),
+        ChangeNotifierProvider(create: (context)=>RecentExperimentProvider())
       ],
-    child: 
+    child:
       const MaterialApp(
         title: 'Water Quality',
       debugShowCheckedModeBanner: false,

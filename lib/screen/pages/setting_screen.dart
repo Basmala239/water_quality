@@ -1,3 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:water_quality/controller/provider/account_provider.dart';
@@ -6,6 +9,7 @@ import 'package:water_quality/screen/colors.dart';
 
 import '../../controller/provider/setting_provider.dart';
 import '../size_config.dart';
+// ignore: must_be_immutable
 class SettingScreen extends StatelessWidget {
   SettingScreen({super.key});
   final String user=AccountModel.currentUser;
@@ -18,6 +22,9 @@ class SettingScreen extends StatelessWidget {
   final contactNumber = TextEditingController();
   final city = TextEditingController();
   final state = TextEditingController();
+  CollectionReference updateUser = FirebaseFirestore.instance.collection('users'); 
+  
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -348,39 +355,45 @@ class SettingScreen extends StatelessWidget {
                 SizedBox(
                   width: 180,
                   height: 50,
-                  child: ElevatedButton(onPressed: (){
+                  child: ElevatedButton(onPressed: ()async{
                    
                       if(firstName.text.isNotEmpty){
+                        await updateUser.doc(AccountModel.userDocumentId[user]).update({'firstName':firstName.text});
                         Provider.of<SettingProvider>(context,listen: false).changeFirstName(firstName.text);
                         firstName.text='';
                         Provider.of<AccountProvider>(context,listen: false).addAccount(user);
                       }
                       if(lastName.text.isNotEmpty){
+                        await updateUser.doc(AccountModel.userDocumentId[user]).update({'lastName':lastName.text});
                         Provider.of<SettingProvider>(context,listen: false).changeLastName(lastName.text);
                         lastName.text='';
                         Provider.of<AccountProvider>(context,listen: false).addAccount(user);
                       }
                       if(address.text.isNotEmpty){
+                        await updateUser.doc(AccountModel.userDocumentId[user]).update({'address':address.text});
                         Provider.of<SettingProvider>(context,listen: false).changeAddress(address.text);
                         address.text='';
                       }
                       if(contactNumber.text.isNotEmpty){
+                        await updateUser.doc(AccountModel.userDocumentId[user]).update({'contactNumber':contactNumber.text});
                         Provider.of<SettingProvider>(context,listen: false).changeContactNumber(contactNumber.text);
                         contactNumber.text='';
                       }
                       if(city.text.isNotEmpty){
+                        await updateUser.doc(AccountModel.userDocumentId[user]).update({'city':city.text});
                         Provider.of<SettingProvider>(context,listen: false).changeCity(city.text);
                         city.text='';
                       }
                       if(state.text.isNotEmpty){
+                        await updateUser.doc(AccountModel.userDocumentId[user]).update({'state':state.text});
                        Provider.of<SettingProvider>(context,listen: false).changeState(state.text);
                        state.text='';
                       }
                       if(password.text.isNotEmpty){
+                        await updateUser.doc(AccountModel.userDocumentId[user]).update({'password':password.text});
                         Provider.of<SettingProvider>(context,listen: false).changePassword(password.text);
                         password.text='';
                       }
-                    
                     
                   }, 
                   style: ButtonStyle(

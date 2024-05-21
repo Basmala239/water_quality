@@ -26,6 +26,12 @@ class NotificationProvider extends ChangeNotifier{
     NotificationData.notificationLast[user]!.removeAt(ind);
     notifyListeners();
   }
+  void empty(){
+    for(int i=0;i<AccountModel.accountList.length;i++){
+      NotificationData.notificationLast[i]!.clear();
+    }
+    notifyListeners();
+  }
 
   int lengthDataNotification(int user){
     return NotificationData.notificationLast[user]!.length;

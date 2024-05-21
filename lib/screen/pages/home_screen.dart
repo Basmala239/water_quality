@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -13,14 +14,39 @@ import 'package:water_quality/screen/widget/task_widget.dart';
 import '../../controller/provider/experiment_provide.dart';
 import '../../controller/provider/notification_provider.dart';
 import '../../model/account_model.dart';
+class HomeScreen extends StatefulWidget {
+  const  HomeScreen({super.key});
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen(this.user, {super.key});
+class _HomeScreenState extends State<HomeScreen> {
+ 
   final List<ChartData> chartData = [
             ChartData('David', 20),
             ChartData('Steve', 80),
         ];
-  final String user;
+  final String user=AccountModel.currentUser;
+
+  List <QueryDocumentSnapshot>data=[];
+  addToList(){
+    Provider.of<RecentExperimentProvider>(context,listen: false).empty();
+    for(int i=0;i<data.length;i++){
+      RecentExperiment re=RecentExperiment(data[i]['name'], data[i]['by'], data[i]['time'], data[i]['date']);
+      Provider.of<RecentExperimentProvider>(context,listen: false).addNewRecentExperiment(re);
+    }
+  }
+  getExperimentType()async{
+    QuerySnapshot querySnapshot= await FirebaseFirestore.instance.collection('recentExperiment').get();
+    data.addAll(querySnapshot.docs);
+    addToList();
+  }
+  @override
+  void initState() {
+    super.initState();
+    getExperimentType();
+  }
+
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -28,7 +54,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         actions: [
           IconButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder:(context)=> NotificationScreen()));
+            Navigator.push(context, MaterialPageRoute(builder:(context)=> const NotificationScreen()));
           }, icon:Stack(children: [const Icon(Icons.notifications_none),
           if(Provider.of<NotificationProvider>(context).isHaveNew(user)==true)
             Positioned(
@@ -128,12 +154,12 @@ class HomeScreen extends StatelessWidget {
                             color: MyColor.white,
                           ),
                           child: ListView.builder(
-                            itemCount:RecentExperiment.recentExperimentList[AccountModel.accountMap[user]?.ind]?.length,
+                            itemCount:Provider.of<RecentExperimentProvider>(context).legnthofrecentExperimentListt(),
                             itemBuilder: (context,index) =>experimentWidget(
-                              RecentExperiment.recentExperimentList[AccountModel.accountMap[user]!.ind]![index].name,
-                              RecentExperiment.recentExperimentList[AccountModel.accountMap[user]!.ind]![index].by,
-                              RecentExperiment.recentExperimentList[AccountModel.accountMap[user]!.ind]![index].date,
-                              RecentExperiment.recentExperimentList[AccountModel.accountMap[user]!.ind]![index].time,
+                              RecentExperiment.recentExperimentList[index].name,
+                              RecentExperiment.recentExperimentList[index].by,
+                              RecentExperiment.recentExperimentList[index].date,
+                              RecentExperiment.recentExperimentList[index].time,
                               SizeConfig.horizontalBlock
                             )),
                         ),
@@ -160,12 +186,12 @@ class HomeScreen extends StatelessWidget {
                             color: MyColor.white,
                           ),
                           child: ListView.builder(
-                            itemCount:TaskModel.taskList[AccountModel.accountMap[user]?.ind]?.length,
+                            itemCount:TaskModel.taskList.length,
                             itemBuilder: (context,index) =>taskWidget(
-                              TaskModel.taskList[AccountModel.accountMap[user]?.ind]![index].iconPath,
-                              TaskModel.taskList[AccountModel.accountMap[user]?.ind]![index].description,
-                              TaskModel.taskList[AccountModel.accountMap[user]?.ind]![index].date,
-                              TaskModel.taskList[AccountModel.accountMap[user]?.ind]![index].fav,
+                              TaskModel.taskList[index].iconPath,
+                              TaskModel.taskList[index].description,
+                              TaskModel.taskList[index].date,
+                              TaskModel.taskList[index].fav,
                               SizeConfig.horizontalBlock
                             )),
                         ),

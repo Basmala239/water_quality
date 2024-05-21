@@ -16,10 +16,13 @@ class AssetsManager{
   static String sara1Image='$imagePath/sara1.png';
   static String shams1Image='$imagePath/shams1.png';
   static String backgroundImage='$imagePath/backgroundImage.svg';
+  static String bookImage='$imagePath/Book.png';
+  static String cardImage='$imagePath/Card.png';
+  static String clockImage='$imagePath/Clock.png';
 
   //icon
   static const cancelIcon="$iconPath/cancelIcon.svg";
-  static const reportIcon="$iconPath/reportIcon.svj";
+  static const reportIcon="$imagePath/Document.png";
   
   //font
   static const font='Poppins';

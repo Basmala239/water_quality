@@ -1,4 +1,3 @@
-import 'package:water_quality/controller/assets_manager/assets_manager.dart';
 
 class NotificationModel{
   int id;
@@ -13,13 +12,12 @@ class NotificationModel{
 }
 class NotificationData{
   static Map<int,List<NotificationModel>>notificationLast={
-    0:[
-      NotificationModel(0,AssetsManager.ana1Image,'Ana Bob',"2 min","new Note",false,'note'),
-      NotificationModel(1,AssetsManager.ana1Image,'Ana Bob',"2 min","new Report",false,'Report')
-    ],
+    0:[],
     1:[],
-    2:[NotificationModel(0,AssetsManager.ana1Image,'Ana Bob',"2 min","new Note",false,'note'),],
+    2:[],
     3:[],
-    4:[],
+    4:[
+
+    ],
   };
 }

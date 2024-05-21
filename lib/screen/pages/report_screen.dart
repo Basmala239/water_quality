@@ -1,17 +1,62 @@
+// ignore_for_file: avoid_print
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:water_quality/controller/assets_manager/assets_manager.dart';
 import 'package:water_quality/controller/provider/report_provider.dart';
 import 'package:water_quality/model/account_model.dart';
+import 'package:water_quality/model/experiment_model.dart';
 import 'package:water_quality/model/notification_model.dart';
 import 'package:water_quality/model/repost_model.dart';
 import 'package:water_quality/screen/colors.dart';
 import '../../controller/provider/notification_provider.dart';
 import '../size_config.dart';
-class ReportScreen extends StatelessWidget {
-  ReportScreen({super.key});
+class ReportScreen extends StatefulWidget {
+  const ReportScreen({super.key});
+
+  @override
+  State<ReportScreen> createState() => _ReportScreenState();
+}
+
+class _ReportScreenState extends State<ReportScreen> {
   final String user =AccountModel.currentUser;
   final noteDescription = TextEditingController();
+  
+  Future<void> addNotificationToDB(String toUser,String type,String description)async{
+    CollectionReference collectionReference= FirebaseFirestore.instance.collection('notification');
+     return collectionReference.add({
+                          'ind':AccountModel.accountMap[toUser]!.ind,
+                          'imagePath':AccountModel.accountMap[user]!.image,
+                          'name': "${AccountModel.accountMap[user]!.firstName} ${AccountModel.accountMap[user]!.lastName}",
+                          'time':'${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day} \n ${DateTime.now().hour}:${DateTime.now().minute} ',
+                          'description':description,
+                          'read': false,
+                          'type':type
+                        })
+                        .then((value) => print("recentExperiment Added"))
+                        .catchError((error) => print("Failed to add user: $error"));
+ }
+
+ List <QueryDocumentSnapshot>data=[];
+ addToList(){
+    Provider.of<ReportProvider>(context,listen: false).empty();
+    for(int i=0;i<data.length;i++){
+        ExperimentReoprt ex=ExperimentReoprt(data[i]['name'], data[i]['duration'], data[i]['inf'], data[i]['eff']);
+        Provider.of<ReportProvider>(context,listen: false).addExperimentToReport(ex);
+    }
+  }
+  getReportExperiment()async{
+    QuerySnapshot querySnapshot= await FirebaseFirestore.instance.collection('reportExperiment').get();
+    data.addAll(querySnapshot.docs);
+    addToList();
+  }
+
+  @override
+  void initState() {
+    getReportExperiment();
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
@@ -138,7 +183,7 @@ class ReportScreen extends StatelessWidget {
                               fontWeight: FontWeight.w400,
                               color: MyColor.white
                             ),),
-                            Text(" %",style:  TextStyle(
+                            Text("${Provider.of<ReportProvider>(context).efficiencyres()} %",style:  TextStyle(
                               fontSize: 20*SizeConfig.horizontalBlock,
                               fontWeight: FontWeight.w600,
                               color: MyColor.white
@@ -239,7 +284,7 @@ class ReportScreen extends StatelessWidget {
                           )
                         ]
                       ),
-                      child: const Text('m³/day  '),
+                      child:Text('${Provider.of<ReportProvider>(context).totleDurationRes()}  '),
                     )
                   ],
                 ),
@@ -276,7 +321,7 @@ class ReportScreen extends StatelessWidget {
                           )
                         ]
                       ),
-                      child: const Text('m³/day  '),
+                      child: const Text('2024-5-20  '),
                     )
                   ],
                 ),Column(
@@ -305,7 +350,7 @@ class ReportScreen extends StatelessWidget {
                           )
                         ]
                       ),
-                      child: const Text('mg/l  '),
+                      child: const Text('Monday  '),
                     )
                   ],
                 ),
@@ -386,13 +431,7 @@ class ReportScreen extends StatelessWidget {
                         fontSize: 30*SizeConfig.horizontalBlock,
                         fontWeight: FontWeight.w500,
                         color: MyColor.black,
-                      ),),
-                      Text('limit',
-                      style: TextStyle(
-                        fontSize: 30*SizeConfig.horizontalBlock,
-                        fontWeight: FontWeight.w500,
-                        color: MyColor.black,
-                      ),),
+                      ),)
                     ],
                     
                   ),
@@ -402,16 +441,20 @@ class ReportScreen extends StatelessWidget {
                  height: 300*SizeConfig.verticalBlock,
                   child: ListView.builder(
                     itemCount: Provider.of<ReportProvider>(context).lengthofExperimentReoprt(),
-                    itemBuilder:(context, index)=>Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    itemBuilder:(context, index){
+
+                      return Row(
                       children: [
-                        
-                        Text(ReportModel.reportModelList[index].name),
-                        Text('${ReportModel.reportModelList[index].duration}'),
-                        Text('${ReportModel.reportModelList[index].inf}'),
-                        Text('${ReportModel.reportModelList[index].eff}'),
+                        const SizedBox(width: 40,),
+                        Text('  ${ReportModel.reportModelList[index].name}'),
+                        const SizedBox(width: 250,),
+                        Text('  ${ReportModel.reportModelList[index].duration}'),
+                        const SizedBox(width: 230,),
+                        Text('  ${ReportModel.reportModelList[index].inf}'),
+                        const SizedBox(width: 150,),
+                        Text('  ${ReportModel.reportModelList[index].eff}'),
                       ],
-                    )
+                    );}
                      
                   ),
                 )
@@ -459,9 +502,10 @@ class ReportScreen extends StatelessWidget {
                         for(int i=0;i<AccountModel.accountMap.length;i++){
                         String sendTo=AccountModel.accountList[i];
                         if(AccountModel.accountMap[sendTo]!.jobTitle=='Chemist'||AccountModel.accountMap[sendTo]!.jobTitle=='Lab Technicion'){
-                          var note=NotificationData.notificationLast[AccountModel.accountMap[sendTo]!.ind];
+                          addNotificationToDB(sendTo, 'Note', noteDescription.text);
                           Provider.of<NotificationProvider>(context,listen: false).addNotification(AccountModel.accountMap[sendTo]!.ind,
-                            NotificationModel(note!.length+1,
+                            NotificationModel(
+                              AccountModel.accountMap[sendTo]!.ind,
                              AccountModel.accountMap[user]!.image
                             , "${AccountModel.accountMap[user]!.firstName} ${AccountModel.accountMap[user]!.lastName}",
                              '1 min',
@@ -509,6 +553,7 @@ class ReportScreen extends StatelessWidget {
                     ],
                    )),
                 ),
+                if(AccountModel.accountMap[user]!.jobTitle!='IT Depertment')
                 SizedBox(
                   width:150 ,
                   height: 40,
@@ -518,11 +563,11 @@ class ReportScreen extends StatelessWidget {
                         String sendTo=AccountModel.accountList[i];
                         if(sendTo!=user&&AccountModel.accountMap[sendTo]!.jobTitle != 'IT Depertment'){
                           
-                          var note=NotificationData.notificationLast[AccountModel.accountMap[sendTo]!.ind];
-                          
+                          addNotificationToDB(sendTo, 'Report', 'New Report');
                           Provider.of<NotificationProvider>(context,listen: false).addNotification(AccountModel.accountMap[sendTo]!.ind,
-                            NotificationModel(note!.length,
-                             AccountModel.accountMap[user]!.image
+                            NotificationModel(
+                            AccountModel.accountMap[sendTo]!.ind,
+                            AccountModel.accountMap[user]!.image
                             , "${AccountModel.accountMap[user]!.firstName} ${AccountModel.accountMap[user]!.lastName}",
                              '1 min',
                               'New Report',

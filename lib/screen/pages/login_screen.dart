@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,9 +19,22 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
 
+  List <QueryDocumentSnapshot>data=[];
+  addToList(){
+    Provider.of<AccountProvider>(context,listen: false).emptyAll();
+    for(int i=0;i<data.length;i++){
+        AccountModel acc=AccountModel(data[i]['email'], data[i]['jobTitle'], data[i]['firstName'], data[i]['lastName'], data[i]['image'], data[i]['address'], data[i]['contactNumber'], data[i]['city'], data[i]['state'], data[i]['password'], data[i]['ind'], data[i]['haveNotification'], data[i]['lastVisit']);
+        AccountModel.accountMap[data[i]['email']]=acc;
+        AccountModel.accountList.add(data[i]['email']);
+        AccountModel.userDocumentId[data[i]['email']]=data[i].id;
+        if(data[i]['lastVisit']==true){
+        Provider.of<AccountProvider>(context,listen: false).addAccount(data[i]['email']);
+    }}
+  }
   getUsers()async{
     QuerySnapshot querySnapshot= await FirebaseFirestore.instance.collection("users").get();
-    print(querySnapshot.docs);
+    data.addAll(querySnapshot.docs);
+    addToList();
   }
   @override
   void initState() {
